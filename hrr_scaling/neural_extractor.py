@@ -16,7 +16,9 @@ import matplotlib.gridspec as gridspec
 
 import nengo
 from nengo.networks import CircularConvolution, EnsembleArray
-from nengo.spa import AssociativeMemory
+from nengo.networks.assoc_mem import AssociativeMemory
+#from nengo.spa import AssociativeMemory
+from nengo.spa import Vocabulary
 from nengo.dists import Uniform
 import nengo.utils.numpy as npext
 
@@ -246,12 +248,44 @@ class NeuralExtractor(Extractor):
                     assoc_spike_probes[k] = nengo.Probe(node, synapse=None)
 
             else:
+                #print(self.index_vectors)
+                #print(self.stored_vectors)
+                '''
+                index_vocab = Vocabulary(128)
+                stored_vocab = Vocabulary(128)
+                #index_vocab = Vocabulary(len(self.index_vectors.values()))
+                #stored_vocab = Vocabulary(len(self.stored_vectors.values()))
+
+                import string
+                chars = list(string.ascii_uppercase)
+
+                import random
+                for idx, vector in enumerate(self.index_vectors.values()):
+                    generated_key = ''.join([chars[i] for i in random.sample(range(len(chars)), len(chars)-1)])
+                    print('index_len: {}'.format(np.shape(vector)))
+                    print(vector)
+                    index_vocab.add(generated_key, vector)
+                for idx, vector in enumerate(self.stored_vectors.values()):
+                    generated_key = ''.join([chars[i] for i in random.sample(range(len(chars)), len(chars)-1)])
+                    print('stored_len: {}'.format(np.shape(vector)))
+                    stored_vocab.add(generated_key, vector)
+                '''
+
                 self.assoc_mem = AssociativeMemory(
-                    input_vocab=np.array(self.index_vectors.values()),
-                    output_vocab=np.array(self.stored_vectors.values()),
+                    input_vectors=self.index_vectors.values(),
+                    output_vectors=self.stored_vectors.values(),
                     threshold=self.threshold,
-                    neuron_type=nengo.LIF(tau_rc=tau_rc, tau_ref=tau_ref),
-                    n_neurons_per_ensemble=neurons_per_item)
+                    n_neurons=neurons_per_item)
+                    #neuron_type=nengo.LIF(tau_rc=tau_rc, tau_ref=tau_ref),
+                    #n_neurons_per_ensemble=neurons_per_item)
+                self.assoc_mem.add_threshold_to_outputs(neurons_per_item)
+                #self.assoc_mem = AssociativeMemory(
+                #    input_vocab=index_vocab,
+                #    output_vocab=stored_vocab,
+                #    threshold=self.threshold,
+                #    )
+                    #neuron_type=nengo.LIF(tau_rc=tau_rc, tau_ref=tau_ref),
+                    #n_neurons_per_ensemble=neurons_per_item)
 
                 nengo.Connection(
                     self.D_output, self.assoc_mem.input, synapse=synapse)
@@ -259,7 +293,8 @@ class NeuralExtractor(Extractor):
                     self.assoc_mem.output, self.output.input, synapse=synapse)
 
                 assoc_ensembles = (
-                    self.assoc_mem.thresholded_ens_array.ea_ensembles)
+                    self.assoc_mem.thresh_ens.ensembles)
+                    #self.assoc_mem.thresholded_ens_array.ea_ensembles)
 
                 for ens, k in zip(assoc_ensembles, self.index_vectors):
                     if k in self.probe_keys:
@@ -317,6 +352,7 @@ class NeuralExtractor(Extractor):
             warnings.warn("Non-GPU ensembles could not be reset")
 
     def build_simulator(self, model):
+        print('Neuron Count: {} neurons'.format(model.n_neurons))
         if ocl_imported and self.ocl:
             platforms = pyopencl.get_platforms()
 
