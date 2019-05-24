@@ -4,7 +4,7 @@ import os
 from collections import defaultdict, deque
 import inspect
 
-import file_helpers
+from . import file_helpers
 
 
 def draw_bootstrap_samples(data, num, rng=random):
@@ -241,7 +241,7 @@ class Bootstrapper:
         title = "Bootstrap Summary"
         print_header(output_file, title)
 
-        data_keys = self.data.keys()
+        data_keys = list(self.data.keys())
         data_keys.sort()
 
         for n in data_keys:

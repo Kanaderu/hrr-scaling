@@ -7,7 +7,7 @@ try:
     from scipy.cluster.vq import kmeans2
 except:
     spike_sorting = False
-    print "Couldn't import scipy.cluster. Can't cluster spikes."
+    print("Couldn't import scipy.cluster. Can't cluster spikes.")
 
 
 def plot_performance(y_vals, error_lo, error_hi, measure_labels,

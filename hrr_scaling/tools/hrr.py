@@ -155,7 +155,7 @@ class Vocabulary:
                     count+=1
                 if count>=100:        
                     if do_warning:
-                        print 'Warning: Could not create an HRR with max_similarity=%1.2f (D=%d, M=%d)'%(self.max_similarity,self.dimensions,len(self.hrr))
+                        print('Warning: Could not create an HRR with max_similarity={} (D={}, M={})'.format(self.max_similarity,self.dimensions,len(self.hrr)))
                 
                 # Check and make HRR vector unitary if needed
                 if self.unitary is True or (isinstance(self.unitary,list) and key in self.unitary):

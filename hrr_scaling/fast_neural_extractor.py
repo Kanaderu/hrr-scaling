@@ -47,7 +47,7 @@ class FastNeuralExtractor(NeuralExtractor):
         self.output_model = nengo.Network(label="Output", seed=self.seed)
         self.build_output(self.output_model)
 
-        print "Building simulators"
+        print("Building simulators")
         self.unbind_simulator = self.build_simulator(self.unbind_model)
         self.output_simulator = self.build_simulator(self.output_model)
 
@@ -119,17 +119,17 @@ class FastNeuralExtractor(NeuralExtractor):
         self.A_input_vector = item
         self.B_input_vector = query
 
-        print "Simulating unbind model"
+        print("Simulating unbind model")
         self.unbind_simulator.run(self.timesteps * self.dt)
 
         assoc_input = self.unbind_simulator.data[self.D_probe]
 
-        print "Simulating associative memory"
+        print("Simulating associative memory")
         self.assoc_output = self.assoc_memory.multi_step(assoc_input)
 
         self.output_index = 0
 
-        print "Simulating output"
+        print("Simulating output")
         self.output_simulator.run(self.timesteps * self.dt)
 
         now = datetime.datetime.now()

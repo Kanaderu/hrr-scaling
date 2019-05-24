@@ -148,7 +148,7 @@ class WordnetTest(object):
             word_vec = self.semantic_pointers[word_key]
 
         if word_key:
-            print >> output_file, "start :", word_key
+            print(str(output_file) + "start :" + str(word_key))
             tools.print_header(sys.stdout, "Start")
             print(word_key)
 
@@ -156,8 +156,8 @@ class WordnetTest(object):
             tools.print_header(sys.stdout, "Target")
             print(goal)
 
-        print >> output_file, "goal: ", goal
-        print >> output_file, "depth: ", depth
+        print(str(output_file) + "goal: " + str(goal))
+        print(str(output_file) + "depth: " + str(depth))
 
         self.current_target_keys = answers
         self.current_num_relations = num_relations
@@ -181,12 +181,11 @@ class WordnetTest(object):
                 size = stats[3]
                 highest_invalid_match = stats[4]
 
-                print >> output_file, "target match: ", target_match
-                print >> output_file, "second match : ", second_match
-                print >> output_file, "size : ", size
-                print >> output_file, "highest_invalid_match : ", \
-                    highest_invalid_match
-                print >> output_file, "num_relations: ", num_relations
+                print(str(output_file) + "target match: " + str(target_match))
+                print(str(output_file) + "second match : " + str(second_match))
+                print(str(output_file) + "size : " + str(size))
+                print(str(output_file) + "highest_invalid_match : " + str(highest_invalid_match))
+                print(str(output_file) + "num_relations: " + str(num_relations))
 
                 self.add_data("d_"+str(depth)+"_target_match", target_match)
                 self.add_data("d_"+str(depth)+"_second_match", second_match)
@@ -402,11 +401,11 @@ class ExpressionTest(WordnetTest):
         for n, v in names_dict.iteritems():
             vocab.add(n, v)
 
-        print "expression:", expression
-        print "query_expression:", query_expression
-        print "unitary_names:", unitary_names
-        print "target_key:", target_key
-        print "name_keys_dict:", names_keys_dict
+        print("expression: {}".format(expression))
+        print("query_expression:".format(query_expression))
+        print("unitary_names: {}".format(unitary_names))
+        print("target_key: {}".format(target_key))
+        print("name_keys_dict: {}".format(names_keys_dict))
 
         test_vector = eval(expression, {}, vocab)
         test_vector.normalize()
@@ -439,7 +438,7 @@ class JumpTest(WordnetTest):
         exact_score = 0
 
         while testNumber < self.num_trials:
-            words = self.rng.sample(self.corpus_dict,
+            words = self.rng.sample(list(self.corpus_dict),
                                     self.num_trials-testNumber)
 
             for word in words:
@@ -461,9 +460,9 @@ class JumpTest(WordnetTest):
                         num_relations=len(testableLinks),
                         answers=answers)
 
-                    print >> self.output_file, "Correct goal? ", correct
-                    print >> self.output_file, "Valid answers? ", valid
-                    print >> self.output_file, "Exact goal? ", exact
+                    print(str(self.output_file) + "Correct goal? " + str(correct))
+                    print(str(self.output_file) + "Valid answers? " + str(valid))
+                    print(str(self.output_file) + "Exact goal? " + str(exact))
 
                     testNumber += 1
 
@@ -485,7 +484,7 @@ class JumpTest(WordnetTest):
         valid_score = float(valid_score) / float(testNumber)
         exact_score = float(exact_score) / float(testNumber)
 
-        print "score,"+str(correct_score)
+        print("score {}".format(str(correct_score)))
 
         self.add_data("jump_score_correct", correct_score)
         self.add_data("jump_score_valid", valid_score)
@@ -603,14 +602,14 @@ class HierarchicalTest(WordnetTest):
         self.output_file.write("PT,"+str(p)+"\n")
         tools.print_footer(self.output_file, title)
 
-        print "Start trial:\n"
-        print "FP,"+str(n-n_score)+"\n"
-        print "CR,"+str(n_score)+"\n"
-        print "hits,"+str(p_score)+"\n"
-        print "misses,"+str(p-p_score)+"\n"
-        print "TS,"+str(n_score+p_score)+" out of "+str(n+p)+"\n"
-        print "NT,"+str(n)+"\n"
-        print "PT,"+str(p)+"\n"
+        print("Start trial:\n")
+        print("FP,"+str(n-n_score)+"\0n")
+        print("CR,"+str(n_score)+"\n")
+        print("hits,"+str(p_score)+"\n")
+        print("misses,"+str(p-p_score)+"\n")
+        print("TS,"+str(n_score+p_score)+" out of "+str(n+p)+"\n")
+        print("NT,"+str(n)+"\n")
+        print("PT,"+str(p)+"\n")
 
         overall_score = float(n_score + p_score) / float(p + n)
         self.add_data("hierarchical_score", overall_score)
@@ -850,8 +849,7 @@ class SentenceTest(WordnetTest):
                 score[d] = score[d] + sentence_percent
 
         for d in score:
-            print "Sentence test score at depth %d: %f out of %d" \
-                % (d, score[d], self.num_trials)
+            print("Sentence test score at depth %d: %f out of %d".format(d, score[d], self.num_trials))
 
             percent = score[d] / self.num_trials
 

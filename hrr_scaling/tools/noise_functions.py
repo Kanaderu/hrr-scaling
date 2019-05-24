@@ -1,5 +1,5 @@
 import numpy as np
-import hrr
+from . import hrr
 
 
 def default_noise(vec):
@@ -71,7 +71,7 @@ def output(trial_length, main, main_vector, alternate, noise_func=None):
                 vector = noise_func(main_vector)
                 u = hrr.HRR(data=vector)
                 similarity = u.compare(main_hrr)
-                print "Sim:", similarity
+                print('Sim: {}'.format(similarity))
 
             if alternate:
                 main = not main
@@ -149,12 +149,12 @@ def make_hrr_from_string(D, expression, names={},
 
     original = expression
     expression, unitary_names, temp_names = replace_wildcards(expression)
-    print expression
+    print(expression)
 
     unitary_names += [u for u in names if u[-1:] == "u"]
 
     if verbose:
-        print 'Evaluated expression: ', expression
+        print('Evaluated expression: {}'.format(expression))
 
     def hrr_from_string():
         """
@@ -172,7 +172,7 @@ def make_hrr_from_string(D, expression, names={},
         try:
             h = eval(expression, {}, vocab)
         except Exception as e:
-            print 'Error evaluating HRR string ' + original
+            print('Error evaluating HRR string: {}'.format(original))
             raise e
 
         if normalize:
@@ -238,9 +238,9 @@ def make_hrr_noise_from_string(D, expression, names={},
     unitary_names += [u for u in names if u[-1:] == "u"]
 
     if verbose:
-        print 'Evaluated expression: ', expression
+        print('Evaluated expression: {}'.format(expression))
         extraction_expression = 'h * ~(' + ' * '.join(query_vectors) + ')'
-        print 'Extraction expression: ', extraction_expression
+        print('Extraction expression: {}'.format(extraction_expression))
 
     def hrr_noise_from_string(input_vec):
         """
@@ -268,7 +268,7 @@ def make_hrr_noise_from_string(D, expression, names={},
         try:
             h = eval(expression, {}, vocab)
         except Exception as e:
-            print 'Error evaluating HRR string ' + original
+            print('Error evaluating HRR string {}'.format(original))
             raise e
 
         if normalize:
@@ -340,34 +340,34 @@ if __name__ == "__main__":
     i = hrr.HRR(D)
     f = make_hrr_noise_from_string(D, '?u*?u*?*!*?u')
     x = f(i)
-    print i.compare(x)
+    print(i.compare(x))
 
     i = hrr.HRR(D)
     noise_string = '?*? *? + ? * ? * ? + ? * ? * ! + ?*?'
     f = make_hrr_noise_from_string(D, noise_string, normalize=False)
     x = f(i)
-    print i.compare(x)
+    print(i.compare(x))
 
     i = hrr.HRR(D)
     noise_string = '? * ! + ? * ?'
     f = make_hrr_noise_from_string(D, noise_string, normalize=False)
     x = f(i)
-    print i.compare(x)
+    print(i.compare(x))
 
     i = hrr.HRR(D)
     noise_string = 'a * b * c + a * a * !'
     f = make_hrr_noise_from_string(D, noise_string, normalize=False)
     x = f(i)
-    print i.compare(x)
+    print(i.compare(x))
 
     i = hrr.HRR(D)
     noise_string = '? * a * !'
     f = make_hrr_noise_from_string(D, noise_string, normalize=False)
     x = f(i)
-    print i.compare(x)
+    print(i.compare(x))
 
     i = hrr.HRR(D)
     noise_string = 'b * ! * b + c * c * c * ~c + d * ~d'
     f = make_hrr_noise_from_string(D, noise_string, normalize=False)
     x = f(i)
-    print i.compare(x)
+    print(i.compare(x))

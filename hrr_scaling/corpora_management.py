@@ -2,8 +2,9 @@ from hrr_scaling.tools.hrr import HRR
 from hrr_scaling import symbol_definitions
 from hrr_scaling import tools
 
+import os
 import random
-import Queue
+import queue as Queue
 import collections
 
 import numpy as np
@@ -42,13 +43,13 @@ class VectorizedCorpus(object):
         if self.proportion < 1.0:
             self.create_corpus_subset(self.proportion)
 
-        print "Wordnet data parsed."
+        print("Wordnet data parsed.")
 
         if dry_run:
-            print "Dry run. Skipping vectorization."
+            print("Dry run. Skipping vectorization.")
         else:
             self.form_knowledge_base(id_vecs, unitary_relations)
-            print "Vectorization of WordNet complete"
+            print("Vectorization of WordNet complete")
 
     def parse_wordnet(self):
 
@@ -58,7 +59,7 @@ class VectorizedCorpus(object):
                       self.input_dir+'/data.adv': 'r'}
 
         if self.corpus_dict is not None:
-            print "Warning: overwriting existing corpus dictionary."
+            print("Warning: overwriting existing corpus dictionary.")
 
         self.corpus_dict = {}
         self.name2key = collections.defaultdict(list)
@@ -68,10 +69,11 @@ class VectorizedCorpus(object):
         # and http://wordnet.princeton.edu/wordnet/man/wninput.5WN.html
         # for more information about what's going on here (parsing files).
         for filename in fileposmap:
-            with open(filename, 'rb') as f:
+            with open(filename, 'r') as f:
                 pos = fileposmap[filename]
                 self.skipNotice(f)
 
+                #line = f.readline().decode(encoding='UTF-8')
                 line = f.readline()
                 while line:
                     parse = line.split()
@@ -103,9 +105,9 @@ class VectorizedCorpus(object):
                     line = f.readline()
 
     def has_valid_relations(self, key):
-        valid_relations = filter(
+        valid_relations = list(filter(
             lambda x: x[0] in self.relation_symbols,
-            self.corpus_dict[key])
+            self.corpus_dict[key]))
 
         return len(valid_relations) > 0
 
@@ -129,10 +131,10 @@ class VectorizedCorpus(object):
 
         while size < target_size:
             if queue.empty():
-                key = random.choice(self.corpus_dict.keys())
+                key = random.choice(list(self.corpus_dict.keys()))
 
                 while key in subset_dict or not self.has_valid_relations(key):
-                    key = random.choice(self.corpus_dict.keys())
+                    key = random.choice(list(self.corpus_dict.keys()))
 
                 queue.put(key)
 
@@ -205,7 +207,7 @@ class VectorizedCorpus(object):
                     if activeRelation[1] in localProcessed:
                         # delete a relation if a circular definition was found
                         self.corpus_dict[activeItem].remove(activeRelation)
-                        print 'deleting', activeRelation, 'from', activeItem
+                        print('deleting {} from {}'.format(activeRelation, activeItem))
                     elif activeRelation[1] not in processed:
                         activeItem = activeRelation[1]
                     else:
@@ -220,14 +222,14 @@ class VectorizedCorpus(object):
             raise Exception("Attempted to form the knowledge "
                             "base without a corpus.")
 
-        print "Number of items in knowledge base:", len(self.corpus_dict)
+        print("Number of items in knowledge base: {}".format(len(self.corpus_dict)))
 
         if not id_vecs:
-            print "Processing Corpus"
+            print("Processing Corpus")
             self.processCorpus()
 
-        print "Generating relation type vectors"
-        print "Using relation types: ", self.relation_symbols
+        print("Generating relation type vectors")
+        print("Using relation types: {}".format(self.relation_symbols))
 
         self.relation_type_vectors = {symbol: HRR(self.dimension)
                                       for symbol in self.relation_symbols}
@@ -277,7 +279,7 @@ class VectorizedCorpus(object):
 
         self.semantic_pointers = collections.OrderedDict()
 
-        print "Generating ID-vectors"
+        print("Generating ID-vectors")
 
         if id_vecs:
             self.id_vectors = collections.OrderedDict()
@@ -287,11 +289,11 @@ class VectorizedCorpus(object):
         else:
             self.id_vectors = self.semantic_pointers
 
-        print "Generating HRR vectors"
+        print("Generating HRR vectors")
         for key in key_order:
-            relations = filter(
+            relations = list(filter(
                 lambda x: x[0] in self.relation_symbols,
-                self.corpus_dict[key])
+                self.corpus_dict[key]))
 
             if len(relations) == 0:
                 self.semantic_pointers[key] = HRR(self.dimension)
@@ -348,7 +350,7 @@ class VectorizedCorpus(object):
             else:
                 keys.append(key)
 
-        print keys
+        print(keys)
         starting_keys = keys
 
         if not starting_keys:
@@ -387,7 +389,8 @@ class VectorizedCorpus(object):
         while c == ' ':
             f.readline()
             c = f.read(1)
-        f.seek(-1, 1)
+        #f.seek(-1, 1)
+        f.seek(f.tell() - 1, os.SEEK_SET)   # os.SEEK_SET == 0
 
     def print_config(self, output_file):
         output_file.write("VectorizedCorpus config:\n")

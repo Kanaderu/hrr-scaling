@@ -3,6 +3,7 @@ import os
 import string
 import numpy as np
 
+from functools import reduce
 
 def make_sym_link(source, name):
     try:
@@ -44,7 +45,7 @@ def make_filename(main_title, directory='.', config_dict={}, use_time=True,
         directory += '/'
 
     labels = [directory + main_title]
-    key_vals = list(config_dict.iteritems())
+    key_vals = list(config_dict.items())
     key_vals.sort(key=lambda x: x[0])
 
     for label, value in key_vals:
@@ -55,7 +56,7 @@ def make_filename(main_title, directory='.', config_dict={}, use_time=True,
     if use_time:
         date_time_string = str(datetime.datetime.now()).split('.')[0]
         date_time_string = reduce(
-            lambda y, z: string.replace(y, z, "_"),
+            lambda y, z: str.replace(y, z, "_"),
             [date_time_string, ":", " ", "-"])
         labels.append(date_time_string)
 
@@ -75,14 +76,14 @@ def make_filename(main_title, directory='.', config_dict={}, use_time=True,
 
 def npload(filename):
     try:
-        print "Trying to load..."
+        print("Trying to load...")
         f = open(filename, 'r')
         npfile = np.load(f)
-        print "Loaded"
+        print("Loaded")
         return npfile
     except Exception as E:
-        print E
-        print "Couldn't load."
+        print(E)
+        print("Couldn't load.")
         return None
 
 

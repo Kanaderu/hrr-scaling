@@ -22,6 +22,10 @@ from nengo.spa import Vocabulary
 from nengo.dists import Uniform
 import nengo.utils.numpy as npext
 
+from functools import reduce
+import nengo_loihi
+nengo_loihi.set_defaults()
+
 ocl_imported = True
 try:
     import pyopencl
@@ -69,7 +73,7 @@ class NeuralExtractor(Extractor):
 
         self.runtimes_file = open(self.output_dir+'/neural_runtimes', 'a')
 
-        self.dimension = len(self.index_vectors.values()[0])
+        self.dimension = len(list(self.index_vectors.values())[0])
         self.num_items = len(self.index_vectors)
         self.neurons_per_item = neurons_per_item
         self.neurons_per_dim = neurons_per_dim
@@ -121,15 +125,15 @@ class NeuralExtractor(Extractor):
     def setup_simulator(self):
         self.model = nengo.Network(label="Extractor", seed=self.seed)
 
-        print "Specifiying model"
+        print("Specifiying model")
         # The order is important here
         self.build_unbind(self.model)
         self.build_output(self.model)
         self.build_association(self.model)
 
-        print "Building simulator"
+        print("Building simulator")
         self.simulator = self.build_simulator(self.model)
-        print "Done building simulator"
+        print("Done building simulator")
 
     def build_unbind(self, model):
         A_input_func = make_func(self, "A_input_vector")
@@ -272,8 +276,8 @@ class NeuralExtractor(Extractor):
                 '''
 
                 self.assoc_mem = AssociativeMemory(
-                    input_vectors=self.index_vectors.values(),
-                    output_vectors=self.stored_vectors.values(),
+                    input_vectors=list(self.index_vectors.values()),
+                    output_vectors=list(self.stored_vectors.values()),
                     threshold=self.threshold,
                     n_neurons=neurons_per_item)
                     #neuron_type=nengo.LIF(tau_rc=tau_rc, tau_ref=tau_ref),
@@ -363,12 +367,15 @@ class NeuralExtractor(Extractor):
 
             ctx = pyopencl.Context(devices=devices)
 
+            print('Setting up model with nengo_ocl')
             simulator = nengo_ocl.sim_ocl.Simulator(model, context=ctx)
         else:
             if self.ocl:
-                print "Failed to import nengo_ocl"
+                print("Failed to import nengo_ocl")
 
-            simulator = nengo.Simulator(model)
+            print('Setting up model with nengo_loihi')
+            simulator = nengo_loihi.Simulator(model)
+            #simulator = nengo.Simulator(model)
 
         return simulator
 
@@ -405,7 +412,7 @@ class NeuralExtractor(Extractor):
         ax = plt.subplot(gs[1:3, :])
 
         if len(self.index_vectors) < 1000:
-            for key, v in self.index_vectors.iteritems():
+            for key, v in self.index_vectors.items():
                 input_sims = np.dot(self.data[self.D_probe], v)
                 label = str(key[1])
                 if key == correct_key:
@@ -431,7 +438,7 @@ class NeuralExtractor(Extractor):
             plt.axhline(1.0, ls=':', c='k')
 
         ax = plt.subplot(gs[3:5, :])
-        for key, p in self.assoc_probes.iteritems():
+        for key, p in self.assoc_probes.items():
             if key == correct_key:
                 plt.plot(t, self.data[p], '--')
             else:
@@ -479,7 +486,7 @@ class NeuralExtractor(Extractor):
         ax.set_xlabel('Time (s)')
 
         date_time_string = str(datetime.datetime.now()).split('.')[0]
-        date_time_string = reduce(lambda y, z: string.replace(y, z, "_"),
+        date_time_string = reduce(lambda y, z: str.replace(y, z, "_"),
                                   [date_time_string, ":", ".", " ", "-"])
 
         plot_name = 'neural_extraction_' + date_time_string + ".png"
@@ -501,8 +508,7 @@ class NeuralExtractor(Extractor):
                     self.neurons_per_item, self.neurons_per_dim,
                     self.timesteps, "OCL: "+str(self.ocl),
                     "GPUS: "+str(self.gpus), delta]
-        print >> self.runtimes_file, label, \
-            ": " ",".join([str(tp) for tp in to_print])
+        print(str(self.runtimes_file) + str(label) + ": " ",".join([str(tp) for tp in to_print]))
 
     def print_config(self, output_file):
         super(NeuralExtractor, self).print_config(output_file)

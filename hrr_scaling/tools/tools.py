@@ -1,4 +1,5 @@
-import ConfigParser
+import configparser
+#import ConfigParser
 import argparse
 
 
@@ -151,7 +152,7 @@ def parse_args(print_args=False):
     argvals = parser.parse_args()
 
     if print_args:
-        print argvals
+        print(argvals)
 
     return argvals
 
@@ -175,7 +176,7 @@ def create_outfile_suffix(neural, unitary, id_vecs=True, bidir=False):
 
 
 def read_config(config_name="config"):
-    configParser = ConfigParser.SafeConfigParser()
+    configParser = configparser.SafeConfigParser()
     configParser.readfp(open(config_name))
 
     input_dir = configParser.get("Directories", "input_dir")

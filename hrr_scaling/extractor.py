@@ -101,17 +101,17 @@ class Extractor(object):
             sim = noisy_hrr.compare(correct_hrr)
             dot = np.dot(noisy_hrr.v, correct_hrr.v)
             norm = np.linalg.norm(noisy_hrr.v)
-            print "Statistics when extraction computed exactly:"
-            print ("Cosine Similarity between extracted vector "
-                   "(before assoc) and correct index vector: "), sim
-            print ("Dot product between extracted vector (before assoc) "
-                   "and correct index vector: "), dot
-            print "Norm of extracted vector (before assoc): ", norm
+            print("Statistics when extraction computed exactly:")
+            print("Cosine Similarity between extracted vector "
+                   "(before assoc) and correct index vector: {}".format(sim))
+            print("Dot product between extracted vector (before assoc) "
+                   "and correct index vector: {}".format(dot))
+            print("Norm of extracted vector (before assoc): {}".format(norm))
 
             self.ideal_dot = dot
 
             hrrs = [(key, HRR(data=iv))
-                    for key, iv in self.index_vectors.iteritems()
+                    for key, iv in self.index_vectors.items()
                     if key != correct_key]
 
             sims = [noisy_hrr.compare(h) for (k, h) in hrrs]
@@ -119,22 +119,22 @@ class Extractor(object):
             sim = max(sims)
             dot = max(dots)
 
-            print "Cosine Similarity of closest incorrect index vector ", sim
-            print "Dot product of closest incorrect index vector ", dot
+            print("Cosine Similarity of closest incorrect index vector {}".format(sim))
+            print("Dot product of closest incorrect index vector {}".format(dot))
 
             self.second_dot = dot
 
     def get_similarities_random(self, s, n, dataFunc=None):
         samples_per_vec = 500
         i = 0
-        print "In get_similarities_random"
+        print("In get_similarities_random")
         for idkey1 in self.hrr_vecs.keys():
 
             key_sample = random.sample(self.hrr_vecs, samples_per_vec)
             vec1 = self.hrr_vecs[idkey1]
 
             if i % 100 == 0:
-                print "Sampling for vector: ", i
+                print("Sampling for vector: {}".format(i))
 
             for idkey2 in key_sample:
 
@@ -153,9 +153,9 @@ class Extractor(object):
     def get_similarities_sample(self, s, n, dataFunc=None):
         num_samples = 2 * len(self.hrr_vecs)
         threshold = 0.1
-        print "In get_similarities_sample"
-        print "Num samples:" + str(num_samples)
-        print "Threshold:" + str(threshold)
+        print("In get_similarities_sample")
+        print("Num samples: {}".format(str(num_samples)))
+        print("Threshold: {}".format(str(threshold)))
 
         for i in range(num_samples):
             idkey1, idkey2 = random.sample(self.hrr_vecs, 2)
@@ -168,7 +168,7 @@ class Extractor(object):
                 self.add_data("all", similarity)
 
             if i % 1000 == 0:
-                print "Trial: ", i
+                print("Trial: {}".format(i))
 
     def get_similarities(self, s, n, dataFunc=None):
         """get similarities of idvectors"""
